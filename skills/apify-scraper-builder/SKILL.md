@@ -171,6 +171,8 @@ cd my-scraper
 
 Or pick another template based on the sub-decision matrix above. The CLI's interactive picker (`apify create my-scraper` without `--template`) walks you through the choices.
 
+> **AI-assisted scaffolding.** Each template ships an `AGENTS.md` at the project root that Claude Code / Cursor / Codex auto-read for context. To keep the assistant grounded in current platform facts while you build, add Apify's docs MCP (`claude mcp add apify "https://mcp.apify.com/?tools=docs" -t http`), and optionally the official skills (`npx skills add apify/agent-skills`). Full workflow and doc-feeding tricks: Apify's [Build Actors with AI](https://docs.apify.com/platform/actors/development/quick-start/build-with-ai) guide.
+
 ### What the template scaffolds
 
 ```
