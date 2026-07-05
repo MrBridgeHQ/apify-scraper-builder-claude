@@ -1,4 +1,4 @@
-# Path C — Crawlee Templates (Production Path)
+# Path C - Crawlee Templates (Production Path)
 
 The canonical production path for scraper Actors on Apify. Full walkthrough from `apify create` to a deployed, monetized, observable scraper.
 
@@ -21,12 +21,12 @@ Equivalent Python: replace `ts-` with `python-`, `cheerio` with `beautifulsoup` 
 | Template | Target characteristics | Memory tier | Typical run cost |
 |---|---|---|---|
 | `ts-crawlee-cheerio` | Static HTML, no JS challenge, low rate limiting | 256–512 MB | $0.01–0.05 / 1k items |
-| `ts-crawlee-puppeteer-chrome` | JS-rendered, basic anti-bot — legacy choice | 1–2 GB | $0.50–1.00 / 1k items |
+| `ts-crawlee-puppeteer-chrome` | JS-rendered, basic anti-bot - legacy choice | 1–2 GB | $0.50–1.00 / 1k items |
 | `ts-crawlee-playwright-chrome` | JS-rendered, Cloudflare basic, DataDome | 2–4 GB | $0.50–2.00 / 1k items |
 | `ts-crawlee-playwright-camoufox` | Cloudflare Enterprise, HUMAN/PerimeterX, Akamai | 2–4 GB | $1.00–3.00 / 1k items |
 | `ts-empty` / `ts-start` | Custom architecture | varies | varies |
 
-The full tool-ladder reasoning (cost-per-result, IP economics, escalation triggers) belongs to your scraping anti-bot doctrine. Consult it before picking when uncertain. **Default to Cheerio and escalate on observed failure** — using Playwright for static HTML burns 10× compute for zero benefit.
+The full tool-ladder reasoning (cost-per-result, IP economics, escalation triggers) belongs to your scraping anti-bot doctrine. Consult it before picking when uncertain. **Default to Cheerio and escalate on observed failure** - using Playwright for static HTML burns 10× compute for zero benefit.
 
 ## Project structure
 
@@ -37,7 +37,7 @@ my-scraper/
 │   ├── input_schema.json
 │   ├── dataset_schema.json
 │   ├── output_schema.json        # optional; specifies where output lives
-│   └── pay_per_event.json        # ADD this — not in default template
+│   └── pay_per_event.json        # ADD this - not in default template
 ├── src/
 │   ├── main.ts                   # Actor.init, input read, crawler bootstrap, Actor.exit
 │   ├── routes.ts                 # Crawlee router (per-label handlers)
@@ -75,13 +75,13 @@ my-scraper/
 
 The `storage/` folder is the local emulator. Files under `storage/datasets/default/` are the JSON output items; `storage/key_value_stores/default/INPUT.json` is the local input. Add `storage/` to `.gitignore`. The Apify Cloud uses the same paths internally so behavior matches.
 
-## `.actor/actor.json` — production template
+## `.actor/actor.json` - production template
 
 ```json
 {
   "actorSpecification": 1,
   "name": "my-scraper",
-  "title": "My Scraper — Concise Tagline",
+  "title": "My Scraper - Concise Tagline",
   "description": "One sentence with primary keywords.",
   "version": "0.1",
   "buildTag": "latest",
@@ -107,7 +107,7 @@ Memory tiers and cost, as a rule of thumb:
 - Heavy Playwright / Camoufox: 4096 MB
 - AI-extraction Actors with multiple LLM calls: 4096 MB
 
-## `.actor/input_schema.json` — for a category scraper
+## `.actor/input_schema.json` - for a category scraper
 
 ```json
 {
@@ -154,7 +154,7 @@ Memory tiers and cost, as a rule of thumb:
 
 For the full editor catalog (`stringList`, `requestListSources`, `proxy`, `select`, etc.), see the Apify input-schema documentation.
 
-## `.actor/dataset_schema.json` — product item shape
+## `.actor/dataset_schema.json` - product item shape
 
 Declared via `actor.json` → `storages.dataset`. Validates output and powers the Console's "Dataset preview" UI.
 
@@ -189,13 +189,13 @@ Declared via `actor.json` → `storages.dataset`. Validates output and powers th
 ```
 
 Notes:
-- `nullable: true` for fields that may be absent (the extractor returns nulls on missing selectors — see §"`src/extractors/productCard.ts`").
-- `availability` enum: we normalize to the three most common schema.org `Offer.availability` values (`InStock`, `OutOfStock`, `PreOrder`). Less common values (`Discontinued`, `LimitedAvailability`, `BackOrder`, etc.) map to `null` — document this in the README under "Output schema".
+- `nullable: true` for fields that may be absent (the extractor returns nulls on missing selectors - see §"`src/extractors/productCard.ts`").
+- `availability` enum: we normalize to the three most common schema.org `Offer.availability` values (`InStock`, `OutOfStock`, `PreOrder`). Less common values (`Discontinued`, `LimitedAvailability`, `BackOrder`, etc.) map to `null` - document this in the README under "Output schema".
 - `views.overview` controls what the Console shows on the Dataset tab. Pick the most informative 4–5 fields.
 
 Full schema validation doctrine (including JSON-Schema constraints, error messages, transformations) belongs to your scraping selector-strategy reference.
 
-## `.actor/pay_per_event.json` — production template
+## `.actor/pay_per_event.json` - production template
 
 ```json
 {
@@ -207,11 +207,11 @@ Full schema validation doctrine (including JSON-Schema constraints, error messag
 }
 ```
 
-For multi-event scrapers (e.g. category-page scan + product-detail-fetch), declare each event separately and charge per logical operation. Defer price points to your Apify pricing-strategy doctrine — **do not guess prices**.
+For multi-event scrapers (e.g. category-page scan + product-detail-fetch), declare each event separately and charge per logical operation. Defer price points to your Apify pricing-strategy doctrine - **do not guess prices**.
 
-**Critical:** if you ALSO declare the synthetic `apify-default-dataset-item` event, every `Actor.pushData()` charges BOTH events. This is almost never what you want — declare ONE of the two, not both.
+**Critical:** if you ALSO declare the synthetic `apify-default-dataset-item` event, every `Actor.pushData()` charges BOTH events. This is almost never what you want - declare ONE of the two, not both.
 
-## `.actor/Dockerfile` — Cheerio template
+## `.actor/Dockerfile` - Cheerio template
 
 The `apify create` template ships a working Dockerfile; for production you usually only adjust the base image and add `--omit=dev`. Minimal canonical form:
 
@@ -232,7 +232,7 @@ CMD npm start --silent
 
 For **Playwright** templates (`ts-crawlee-playwright-chrome`), swap `FROM apify/actor-node:20` → `FROM apify/actor-node-playwright-chrome:20`. For **Camoufox**, use `apify/actor-node-playwright-firefox:20` then add `RUN npm install camoufox-js`. The full base-image catalog is in the Apify Docker base-image documentation.
 
-## `src/runtime.ts` — shared mutable state (typed)
+## `src/runtime.ts` - shared mutable state (typed)
 
 Routes need to read/write state across many request invocations. The canonical pattern is a **module-scope runtime object** imported by both `main.ts` (writes config at startup) and `routes.ts` (reads config, mutates state per request). This is preferred over stashing on `crawler.userData` because it stays fully typed and avoids `as any` casts.
 
@@ -253,9 +253,9 @@ export const runtime = {
 };
 ```
 
-Modules are singletons per Node process, so `runtime` is shared across all route invocations within one Actor run. Apify Standby Actors that handle concurrent users would need per-session state (KV Store-keyed by user) — but for batch-mode scrapers this is the right shape.
+Modules are singletons per Node process, so `runtime` is shared across all route invocations within one Actor run. Apify Standby Actors that handle concurrent users would need per-session state (KV Store-keyed by user) - but for batch-mode scrapers this is the right shape.
 
-## `src/main.ts` — production skeleton
+## `src/main.ts` - production skeleton
 
 ```typescript
 import { CheerioCrawler } from '@crawlee/cheerio';
@@ -334,17 +334,17 @@ try {
     `Error: ${(err as Error).message}. See dataset.`,
     { isStatusMessageTerminal: true },
   );
-  await Actor.exit();  // STILL SUCCEEDED — graceful exit pattern
+  await Actor.exit();  // STILL SUCCEEDED - graceful exit pattern
 }
 ```
 
-**Rate-limit rule of thumb:** if the target advertises (or you observe) a hard per-IP limit of N req/min, set `maxRequestsPerMinute` to ~80% of N to leave retry headroom. For a 30 req/min target, use 24; for 60 req/min, use 48. Above 80% you hit 429 cascades; below 50% you waste capacity. With proxy rotation (sticky sessions per IP), the **effective** rate is `maxRequestsPerMinute × session_pool_size` — adjust accordingly.
+**Rate-limit rule of thumb:** if the target advertises (or you observe) a hard per-IP limit of N req/min, set `maxRequestsPerMinute` to ~80% of N to leave retry headroom. For a 30 req/min target, use 24; for 60 req/min, use 48. Above 80% you hit 429 cascades; below 50% you waste capacity. With proxy rotation (sticky sessions per IP), the **effective** rate is `maxRequestsPerMinute × session_pool_size` - adjust accordingly.
 
 `requestHandlerTimeoutSecs: 60` is the HTTP default; bump to 120 for `PlaywrightCrawler` (page navigation + render takes longer). Without an explicit value, slow pages block autoscaling indefinitely.
 
 The graceful-exit pattern (push error to dataset → SUCCEEDED) is non-negotiable; treat it as core error-handling doctrine.
 
-## `src/routes.ts` — Crawlee router with pagination + atomic charging
+## `src/routes.ts` - Crawlee router with pagination + atomic charging
 
 ```typescript
 import { createCheerioRouter } from '@crawlee/cheerio';
@@ -364,7 +364,7 @@ router.addHandler('CATEGORY', async ({ request, $, enqueueLinks, crawler }) => {
 
   const cards = $('[data-testid="product-card"], .product-item, [itemtype$="/Product"]').toArray();
   if (cards.length === 0) {
-    log.warning(`No product cards on ${request.url} — possible site change.`);
+    log.warning(`No product cards on ${request.url} - possible site change.`);
     await Actor.pushData({
       error: true,
       errorType: 'EXTRACTION_FAILED',
@@ -372,7 +372,7 @@ router.addHandler('CATEGORY', async ({ request, $, enqueueLinks, crawler }) => {
       url: request.url,
       timestamp: new Date().toISOString(),
     });
-    return;  // do not throw — let other pages succeed
+    return;  // do not throw - let other pages succeed
   }
 
   for (const el of cards) {
@@ -381,11 +381,11 @@ router.addHandler('CATEGORY', async ({ request, $, enqueueLinks, crawler }) => {
     const product = parseProductCard($(el), request.url);
     if (!product.name || !product.url) continue;  // discard junk before charging
 
-    // Atomic charge + push — preferred pattern
+    // Atomic charge + push - preferred pattern
     const charge = await Actor.pushData(product, 'item-scraped');
 
     if (charge.eventChargeLimitReached) {
-      log.info('Charge cap reached — stopping enqueue.');
+      log.info('Charge cap reached - stopping enqueue.');
       state.chargeLimitReached = true;
       await crawler.autoscaledPool?.abort();
       return;
@@ -393,7 +393,7 @@ router.addHandler('CATEGORY', async ({ request, $, enqueueLinks, crawler }) => {
     state.collectedCount += 1;
   }
 
-  // Pagination — only enqueue next if we haven't hit the cap.
+  // Pagination - only enqueue next if we haven't hit the cap.
   // enqueueLinks silently no-ops when the selector matches nothing,
   // so the crawl naturally terminates on the last page.
   if (state.collectedCount < config.maxProducts) {
@@ -411,7 +411,7 @@ router.addDefaultHandler(async ({ request, log }) => {
 
 **Multi-URL note:** `runtime.state.collectedCount` is a **global** cap across all `startUrls`. The first start URLs in the array get scraped to the cap; subsequent start URLs may be skipped if the cap is hit. Document this in the README. For true per-start-URL caps, key the counter on `request.userData.startUrlIndex` and check against an array of per-URL maxima.
 
-## `src/extractors/productCard.ts` — defensive extraction
+## `src/extractors/productCard.ts` - defensive extraction
 
 ```typescript
 import type { CheerioAPI } from 'cheerio';
@@ -452,14 +452,14 @@ export function parseProductCard($card: ReturnType<CheerioAPI>, baseUrl: string)
 ```
 
 Notes:
-- **Layered fallbacks** (`'h2, [itemprop="name"], .product-name'`) — survive A/B tests and minor redesigns.
-- **Prefer schema.org** (`[itemprop="..."]`) over visual class names — changes less often.
-- **Return nulls, not undefined** — easier to query later in the dataset.
-- **Pure function** — easy to test against fixtures with no Apify SDK.
+- **Layered fallbacks** (`'h2, [itemprop="name"], .product-name'`) - survive A/B tests and minor redesigns.
+- **Prefer schema.org** (`[itemprop="..."]`) over visual class names - changes less often.
+- **Return nulls, not undefined** - easier to query later in the dataset.
+- **Pure function** - easy to test against fixtures with no Apify SDK.
 
 Full selector strategy + schema validation patterns belong to your scraping selector-strategy doctrine.
 
-## `src/ppe/charge.ts` — when not using the atomic shortcut
+## `src/ppe/charge.ts` - when not using the atomic shortcut
 
 The atomic `Actor.pushData(data, 'event-name')` is preferred where the event corresponds to a dataset item. For non-dataset events (e.g. "search-performed", "page-scanned" where no dataset item is pushed), use the wrapper:
 
@@ -491,7 +491,7 @@ if (!charged) {
 }
 ```
 
-Full PPE-implementation and error-handling doctrine sits alongside this skill — consult your monetization and error-handling references.
+Full PPE-implementation and error-handling doctrine sits alongside this skill - consult your monetization and error-handling references.
 
 ## Anti-bot escalation inside Path C
 
@@ -506,7 +506,7 @@ Quick escalation triggers inside a Crawlee scraper:
 | Consistent 403 from datacenter IPs | Escalate proxy group: `DATACENTER` → `RESIDENTIAL` |
 | Residential proxies still blocked | Fingerprint mismatch → Playwright with default Crawlee fingerprints |
 | Playwright still detected | Camoufox: switch template to `ts-crawlee-playwright-camoufox` |
-| Camoufox detected at scale | Managed API (Firecrawl / ZenRows / ScrapFly) — see your managed-scraping-API doctrine |
+| Camoufox detected at scale | Managed API (Firecrawl / ZenRows / ScrapFly) - see your managed-scraping-API doctrine |
 
 **Do not** start at Camoufox. The economics are 100× worse than Cheerio. Escalate only on observed failure.
 
@@ -605,7 +605,7 @@ npx vitest run                # one-shot
 npx vitest --watch            # local TDD only (never in CI)
 ```
 
-`Actor.charge()` and `Actor.pushData(_, eventName)` are no-ops locally — charges only fire on the Apify platform. Log lines should still appear so you can audit charge correctness.
+`Actor.charge()` and `Actor.pushData(_, eventName)` are no-ops locally - charges only fire on the Apify platform. Log lines should still appear so you can audit charge correctness.
 
 ## Mid-run graceful abort
 
@@ -614,7 +614,7 @@ Three legitimate reasons to abort mid-crawl:
 2. `maxProducts` reached
 3. Selectors returned nothing on N consecutive pages (site changed)
 
-The correct API is `crawler.autoscaledPool?.abort()` — NOT `Actor.exit()` (which would terminate the process before in-flight requests finalize) and NOT `process.exit()` (which skips graceful shutdown). After `abort()`, the existing crawler.run() Promise resolves, your main.ts continues to the `Actor.setStatusMessage` + `Actor.exit()` lines, the dataset is finalized.
+The correct API is `crawler.autoscaledPool?.abort()` - NOT `Actor.exit()` (which would terminate the process before in-flight requests finalize) and NOT `process.exit()` (which skips graceful shutdown). After `abort()`, the existing crawler.run() Promise resolves, your main.ts continues to the `Actor.setStatusMessage` + `Actor.exit()` lines, the dataset is finalized.
 
 This follows the core monetization principle: never abort mid-crawl in a way that drops in-flight work.
 
@@ -626,17 +626,17 @@ Quick smoke test after `apify push`:
 
 1. Console → Runs → Start with a small input (5 products).
 2. Confirm status SUCCEEDED, dataset has 5 items, "Billing" tab shows 5 `item-scraped` events charged.
-3. Hit the URL with an intentionally bad input (empty `startUrls`) — verify it returns SUCCEEDED with an error record, not FAILED.
+3. Hit the URL with an intentionally bad input (empty `startUrls`) - verify it returns SUCCEEDED with an error record, not FAILED.
 4. Source-code hygiene: `apify actors info <user>/<actor> --json | jq '.versions[0].sourceFiles[].name'` shows ONLY public files.
 
 ## What this file does NOT cover
 
-- **Tool ladder reasoning (Cheerio vs Playwright vs Camoufox at deeper level)** — your scraping anti-bot doctrine.
-- **Anti-bot escalation tactics, vendor signatures** — your scraping anti-bot doctrine.
-- **Diagnostic (Wappalyzer-first, hidden APIs)** — your scraping diagnostic doctrine.
-- **PPE doctrine** — your Apify monetization doctrine.
-- **README / Store description / pricing copy** — your Apify Actor content-authoring doctrine.
-- **Managed APIs (Firecrawl / ZenRows / ScrapFly) when Crawlee economics break** — your managed-scraping-API doctrine.
+- **Tool ladder reasoning (Cheerio vs Playwright vs Camoufox at deeper level)** - your scraping anti-bot doctrine.
+- **Anti-bot escalation tactics, vendor signatures** - your scraping anti-bot doctrine.
+- **Diagnostic (Wappalyzer-first, hidden APIs)** - your scraping diagnostic doctrine.
+- **PPE doctrine** - your Apify monetization doctrine.
+- **README / Store description / pricing copy** - your Apify Actor content-authoring doctrine.
+- **Managed APIs (Firecrawl / ZenRows / ScrapFly) when Crawlee economics break** - your managed-scraping-API doctrine.
 - **Path A no-code workflow** → `references/path-a-nocode.md`
 - **Path B AI extraction (full pattern)** → `references/path-b-ai-extraction.md`
 - **Pre/post-publish checklist** → `references/checklist-publish.md`

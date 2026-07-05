@@ -1,4 +1,4 @@
-# Path B — AI Extraction
+# Path B - AI Extraction
 
 Use Path B when the target's data shape varies wildly between pages and writing maintainable selectors is **impossible** (not just annoying). The LLM does the extraction work instead of CSS selectors.
 
@@ -13,21 +13,21 @@ This file assumes you've read the main `SKILL.md`. It expands Path B specifics.
 - ✅ You need **schema-evolving** extraction (the data shape evolves as you discover new fields per page)
 
 **Don't use AI extraction when:**
-- ❌ The site has stable, well-structured HTML — even with messy class names, schema.org markup usually exists. Use Path C with `[itemprop="..."]` selectors.
-- ❌ Volume > 100k pages/month — LLM cost ($0.001–$0.10/page) destroys the unit economics. Path C with selectors costs ~$0.00001/page.
-- ❌ You need < 100 ms latency per page — LLM calls are 500 ms–5 s.
-- ❌ The site has an internal JSON API — use it (hunt for it in the DevTools Network panel).
+- ❌ The site has stable, well-structured HTML - even with messy class names, schema.org markup usually exists. Use Path C with `[itemprop="..."]` selectors.
+- ❌ Volume > 100k pages/month - LLM cost ($0.001–$0.10/page) destroys the unit economics. Path C with selectors costs ~$0.00001/page.
+- ❌ You need < 100 ms latency per page - LLM calls are 500 ms–5 s.
+- ❌ The site has an internal JSON API - use it (hunt for it in the DevTools Network panel).
 
-The first move on **any** target is still the diagnostic phase — internal API first, schema.org markup second, selectors third, LLM fourth.
+The first move on **any** target is still the diagnostic phase - internal API first, schema.org markup second, selectors third, LLM fourth.
 
 ## Two patterns
 
-### Pattern B1 — Use `apify/ai-web-scraper`
+### Pattern B1 - Use `apify/ai-web-scraper`
 
 No-code-ish. Configure via the Console:
 - Start URLs (the pages to extract from)
 - Output schema (describe the fields you want as JSON Schema)
-- Optionally, custom LLM provider key (BYO-key — see "LLM-cost handling" below)
+- Optionally, custom LLM provider key (BYO-key - see "LLM-cost handling" below)
 
 The Actor uses an LLM under the hood to extract per your schema. Best for one-off aggregations.
 
@@ -35,9 +35,9 @@ The Actor uses an LLM under the hood to extract per your schema. Best for one-of
 - ✅ Zero code, fastest to results
 - ❌ Limited control over prompts, retries, cost optimization
 - ❌ You don't own the Actor (no PPE revenue)
-- ❌ LLM provider and model are picked for you (usually OpenAI or Claude — varies)
+- ❌ LLM provider and model are picked for you (usually OpenAI or Claude - varies)
 
-### Pattern B2 — Path C + LLM call inside a route handler
+### Pattern B2 - Path C + LLM call inside a route handler
 
 You own the Actor; Crawlee fetches pages; your code calls Claude/GPT inside the route handler.
 
@@ -59,7 +59,7 @@ const ProductSchema = z.object({
 export const router = createCheerioRouter();
 
 router.addHandler('PRODUCT_DETAIL', async ({ request, $, log }) => {
-  // 1. Clean the HTML — keep only content, drop scripts/styles
+  // 1. Clean the HTML - keep only content, drop scripts/styles
   const cleaned = $('body').clone();
   cleaned.find('script, style, noscript, svg, iframe').remove();
   const html = cleaned.html()?.slice(0, 12_000) ?? '';  // cap tokens
@@ -133,13 +133,13 @@ If the page has `<div itemtype="schema.org/Product">...</div>`, extract just tha
 ```typescript
 const productEl = $('[itemtype$="/Product"]').first();
 if (productEl.length > 0) {
-  // Use Path C with selectors — LLM not needed!
+  // Use Path C with selectors - LLM not needed!
   return parseSchemaOrgProduct(productEl);
 }
 // Otherwise fall back to LLM
 ```
 
-This is the **hybrid Path B+C pattern** — use selectors when markup is present, LLM as fallback. Cuts LLM calls by 60–90% on real-world e-commerce sites.
+This is the **hybrid Path B+C pattern** - use selectors when markup is present, LLM as fallback. Cuts LLM calls by 60–90% on real-world e-commerce sites.
 
 ### 3. Truncate, don't expand
 
@@ -160,7 +160,7 @@ For extraction (not generation), Haiku-class models match Sonnet/Opus quality at
 |---|---|---|
 | Pure extraction from cleaned HTML | `claude-haiku-4-5-20251001` | Best price/perf for structured output |
 | Extraction with reasoning ("infer category from description") | `claude-sonnet-4-6` | Trade-off |
-| Multi-step extraction with chained calls | Custom orchestration | Beyond this skill's scope — consult the Claude/Anthropic API docs |
+| Multi-step extraction with chained calls | Custom orchestration | Beyond this skill's scope - consult the Claude/Anthropic API docs |
 
 ### 5. Use prompt caching for repeated prompts
 
@@ -183,7 +183,7 @@ const response = await client.messages.create({
 
 Reduces system-prompt cost to ~10% of normal after the first call. See the Anthropic prompt-caching docs for full details.
 
-## Cost math — when AI extraction breaks the bank
+## Cost math - when AI extraction breaks the bank
 
 Cheerio (Path C, selectors): ~$0.00001 per page (compute + proxy only)
 
@@ -198,18 +198,18 @@ At 1k pages/run with PPE $0.001/item:
 
 You MUST raise the PPE price to ~$0.005–0.025/page to be profitable with AI extraction. Or charge a per-page LLM fee separately. See LLM-cost handling below.
 
-## LLM-cost handling — pricing strategies
+## LLM-cost handling - pricing strategies
 
 When the Actor calls an LLM internally, the developer must decide how to handle the LLM provider's per-call cost. Four strategies:
 
 | Strategy | What | When |
 |---|---|---|
-| **1A — Two-tier transparency** | Developer's PPE event + sub-Actor pass-through, sub-Actors named/hyperlinked in README | Enterprise B2B audience that audits cost lines |
-| **1B — Two-tier implicit** | Sub-Actor pass-through but NOT enumerated in pricing copy | Avoid — bad reviews about hidden costs |
-| **2 — Absorbed cost** | PPE event price includes the LLM cost in the unit price | Self-serve users, simple "one price" UX |
-| **3 — BYO-key** | User provides their own OpenAI/Anthropic key; developer charges only orchestration overhead | Developer-audience Actors |
+| **1A - Two-tier transparency** | Developer's PPE event + sub-Actor pass-through, sub-Actors named/hyperlinked in README | Enterprise B2B audience that audits cost lines |
+| **1B - Two-tier implicit** | Sub-Actor pass-through but NOT enumerated in pricing copy | Avoid - bad reviews about hidden costs |
+| **2 - Absorbed cost** | PPE event price includes the LLM cost in the unit price | Self-serve users, simple "one price" UX |
+| **3 - BYO-key** | User provides their own OpenAI/Anthropic key; developer charges only orchestration overhead | Developer-audience Actors |
 
-For AI-extraction scrapers, **Strategy 2 (absorbed)** is the most common. Strategy 3 (BYO-key) works for developer-audience tooling. **Strategy 1B is an anti-pattern** — never hide LLM cost.
+For AI-extraction scrapers, **Strategy 2 (absorbed)** is the most common. Strategy 3 (BYO-key) works for developer-audience tooling. **Strategy 1B is an anti-pattern** - never hide LLM cost.
 
 For the full discussion and decision criteria, consult your Apify monetization doctrine on LLM-cost handling.
 
@@ -259,7 +259,7 @@ if (cached && Date.now() - cached.ts < 30 * 24 * 3600 * 1000) {
 await store.setValue(cacheKey, { product, ts: Date.now() });
 ```
 
-This is also a PPE consideration — caching means re-running the same input is free for the user (no charge on cache hit). Document this in the README so users understand the pricing model.
+This is also a PPE consideration - caching means re-running the same input is free for the user (no charge on cache hit). Document this in the README so users understand the pricing model.
 
 ## Memory & timeout tuning for AI extraction
 
@@ -290,7 +290,7 @@ If after reading this you're still on the fence, default to Path C with selector
 
 ## See also
 
-- **Claude API patterns (prompt caching, model choice, batch, citations)** — the Anthropic API docs.
-- **LLM cost-handling strategies (1A/1B/2/3) full doctrine** — your Apify monetization doctrine.
-- **Schema.org / `[itemprop]` selectors (the cheap escape from AI extraction)** — your scraping selector-strategy doctrine.
+- **Claude API patterns (prompt caching, model choice, batch, citations)** - the Anthropic API docs.
+- **LLM cost-handling strategies (1A/1B/2/3) full doctrine** - your Apify monetization doctrine.
+- **Schema.org / `[itemprop]` selectors (the cheap escape from AI extraction)** - your scraping selector-strategy doctrine.
 - **Path C base architecture (where the LLM call slots in)** → `references/path-c-crawlee-templates.md`

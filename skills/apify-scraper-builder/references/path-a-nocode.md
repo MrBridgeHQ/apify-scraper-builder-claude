@@ -1,6 +1,6 @@
-# Path A — Configure a No-Code Scraper Actor
+# Path A - Configure a No-Code Scraper Actor
 
-Use Path A when the scrape is a **one-off or prototype** — you want data once, you don't need to publish or monetize an Actor of your own. No `apify create`, no Docker, no git, no TypeScript. You configure an existing Apify Actor via its input form in the Console.
+Use Path A when the scrape is a **one-off or prototype** - you want data once, you don't need to publish or monetize an Actor of your own. No `apify create`, no Docker, no git, no TypeScript. You configure an existing Apify Actor via its input form in the Console.
 
 This file assumes you've read the main `SKILL.md`. It expands Path A specifics.
 
@@ -17,7 +17,7 @@ Default to **cheerio-scraper** until you observe that selectors return nothing (
 
 ## Workflow (5 minutes)
 
-1. Open the Actor page (e.g. `apify/cheerio-scraper`). Click "Try for free" — opens the Console with an input form.
+1. Open the Actor page (e.g. `apify/cheerio-scraper`). Click "Try for free" - opens the Console with an input form.
 2. **Start URLs:** add one or more URLs. The Actor will scrape these first.
 3. **Link selector:** CSS selector for links the Actor should follow (for pagination). Often `a.next-page` or `[rel="next"]`.
 4. **Pseudo URLs:** patterns that the Actor will enqueue from the link selector. Use `[.+]` placeholders. Example: `https://example-shop.com/category/[.+]?page=[.+]`.
@@ -25,7 +25,7 @@ Default to **cheerio-scraper** until you observe that selectors return nothing (
 6. **Proxy configuration:** turn on Apify Proxy with DATACENTER group. Escalate to RESIDENTIAL if blocks appear.
 7. **Save & run.** Inspect the dataset in the Console.
 
-## Page function template — cheerio-scraper
+## Page function template - cheerio-scraper
 
 `apify/cheerio-scraper` exposes `context` with `$` (Cheerio), `request`, `body`, `log`. No browser, no JS execution.
 
@@ -55,7 +55,7 @@ Return value rules:
 - Return `undefined` or `null` → nothing pushed (use for navigation-only pages)
 - **Throw** → the request is retried per the Actor's retry config
 
-## Page function template — web-scraper
+## Page function template - web-scraper
 
 `apify/web-scraper` runs your function inside a real Chromium page. You get `context.jQuery` (full jQuery), `context.request`, `context.page` (the Puppeteer page), and DOM access.
 
@@ -63,7 +63,7 @@ Return value rules:
 async function pageFunction(context) {
     const { $, request, log, page } = context;
 
-    // $ here is jQuery — extracts from the rendered DOM (after JS executed)
+    // $ here is jQuery - extracts from the rendered DOM (after JS executed)
     await page.waitForSelector('[data-testid="product-card"]', { timeout: 10000 });
 
     const products = $('[data-testid="product-card"]').map((_, el) => {
@@ -124,7 +124,7 @@ https://example-shop.com/category/laptops?page=3
 ...
 ```
 
-Simplest possible — works when you know the total page count.
+Simplest possible - works when you know the total page count.
 
 ## Anti-bot inside Path A
 
@@ -152,7 +152,7 @@ Signals that Path A is no longer the right fit:
 | Selectors are getting complex (multi-step extraction, conditional logic) | The `pageFunction` becomes a tangle. Path C's `extractors/*.ts` modules + unit tests are cleaner. |
 | You need to call external APIs (Claude, OpenAI) inside the extraction | Doable in Path A but with awkward token management. Path C handles env vars properly. |
 | You need fixtures-based tests | Path A has no test layer. Path C does. |
-| Run cost is >$0.10/run and you can't optimize | Path A doesn't let you tune memory and image — Path C does. |
+| Run cost is >$0.10/run and you can't optimize | Path A doesn't let you tune memory and image - Path C does. |
 
 When you graduate, the `pageFunction` JS translates almost 1:1 to a Crawlee request handler. The extraction logic stays the same; you get a real project around it.
 
@@ -179,7 +179,7 @@ If you scrape >10k items per month, Path C usually wins on per-item cost because
 - Custom Dockerfiles (e.g. install a non-npm dependency, set system fonts)
 - Persistent state across runs (Path A runs are independent; no KV Store usage by default)
 - Multi-Actor orchestration (`Actor.metamorph`, sub-Actors, AI Agent patterns)
-- Standby mode (the no-code Actors aren't Standby — Standby is an MCP-server / always-on Actor concern)
+- Standby mode (the no-code Actors aren't Standby - Standby is an MCP-server / always-on Actor concern)
 - Selling your scraper on the Apify Store
 
 For any of these, you need Path C.
